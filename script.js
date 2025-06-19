@@ -300,15 +300,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const frete = parseFloat(freteInput.value) || 0;
-        const ajustePercentual = parseFloat(priceAdjustmentInput.value) || 0;
+        const descontoPercentual = parseFloat(priceAdjustmentInput.value) || 0;
         const subtotalComMaoDeObra = subtotalCost + maoDeObraCost;
-        const ajusteValor = subtotalComMaoDeObra * (ajustePercentual / 100);
-        const totalCost = subtotalComMaoDeObra + frete + ajusteValor;
+        const descontoValor = subtotalComMaoDeObra * (descontoPercentual / 100);
+        const totalCost = subtotalComMaoDeObra + frete + descontoValor;
         
-        return { totalCost, breakdownItems, subtotal: subtotalComMaoDeObra, frete, ajuste: ajusteValor };
+        return { totalCost, breakdownItems, subtotal: subtotalComMaoDeObra, frete, desconto: descontoValor };
     }
     
-    function updateBreakdownUI(items, subtotal, frete, ajuste, total) {
+    function updateBreakdownUI(items, subtotal, frete, desconto, total) {
         totalCostDisplay.textContent = `R$ ${total.toFixed(2)}`;
         if (items.length === 0 && subtotal === 0) {
             costBreakdownContainer.innerHTML = `<p class="breakdown-placeholder">Selecione itens para ver o resumo detalhado.</p>`;
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         html += `<table style="margin-top: 20px; width: 50%; float: right; text-align: right; border: none;">
                     <tr style="border: none;"><td style="font-weight: bold; border: none;">Subtotal dos Itens:</td><td style="border: none;">R$ ${subtotal.toFixed(2)}</td></tr>
                     <tr style="border: none;"><td style="font-weight: bold; border: none;">Frete:</td><td style="border: none;">R$ ${frete.toFixed(2)}</td></tr>
-                    <tr style="border: none;"><td style="font-weight: bold; border: none;">Ajuste (${ajuste >= 0 ? '+' : ''}${priceAdjustmentInput.value || 0}%):</td><td style="border: none;">R$ ${ajuste.toFixed(2)}</td></tr>
+                    <tr style="border: none;"><td style="font-weight: bold; border: none;">desconto (${desconto >= 0 ? '+' : ''}${priceAdjustmentInput.value || 0}%):</td><td style="border: none;">R$ ${desconto.toFixed(2)}</td></tr>
                  </table><div style="clear:both;"></div>`;
         costBreakdownContainer.innerHTML = html;
     }
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function handleFormChange() {
         const result = calculateTotal();
-        updateBreakdownUI(result.breakdownItems, result.subtotal, result.frete, result.ajuste, result.totalCost);
+        updateBreakdownUI(result.breakdownItems, result.subtotal, result.frete, result.desconto, result.totalCost);
     }
 
     // ===================================================================================
