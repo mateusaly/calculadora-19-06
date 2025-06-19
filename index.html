@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Orçamentos - D'Coratto</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="calculator-container">
+        <h1>Calculadora de Orçamentos de Marmoraria</h1>
+
+        <form id="quote-form">
+            
+            <div class="form-section">
+                <h2>1. Consultar Orçamentos Anteriores</h2>
+                <div class="form-group material-group">
+                    <select id="history-select">
+                        <option value="">Carregando histórico...</option>
+                    </select>
+                    <button type="button" id="load-quote-btn" class="btn btn-secondary">Carregar</button>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h2>2. Informações Gerais</h2>
+                <div class="form-group">
+                    <label for="salesperson-name">Nome do Vendedor</label>
+                    <input type="text" id="salesperson-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="quote-date">Data do Orçamento</label>
+                    <input type="date" id="quote-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="client-name">Nome do Cliente</label>
+                    <input type="text" id="client-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="client-email">Email do Cliente</label>
+                    <input type="email" id="client-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="client-phone">Telefone para Contato</label>
+                    <input type="tel" id="client-phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="client-cpf-cnpj">CPF / CNPJ</label>
+                    <input type="text" id="client-cpf-cnpj" required>
+                </div>
+                <div class="form-group">
+                    <label for="client-address-street">Endereço (Rua)</label>
+                    <input type="text" id="client-address-street" required>
+                </div>
+                <div class="address-grid">
+                    <div class="form-group">
+                        <label for="client-address-number">Número</label>
+                        <input type="text" id="client-address-number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="client-address-zip">CEP</label>
+                        <input type="text" id="client-address-zip" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="client-address-complement">Complemento</label>
+                    <input type="text" id="client-address-complement">
+                </div>
+                 <div class="form-group">
+                    <label>Localidade da Obra (Mão de Obra)</label>
+                    <div class="radio-group" id="localidade-obra">
+                        <label>
+                            <input type="radio" name="localidade" value="mogi" checked> Mogi das Cruzes e Região
+                        </label>
+                        <label>
+                            <input type="radio" name="localidade" value="sp"> Capital SP
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="material-select">Material da Pedra (Mármore/Granito)</label>
+                    <div class="material-group">
+                        <select id="material-select" required>
+                            <option value="">Carregando materiais...</option>
+                        </select>
+                        <button type="button" id="refresh-materials-btn" class="btn btn-icon" title="Atualizar Lista de Materiais">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <span id="stock-info"></span>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2>3. Ambientes e Peças de Pedra</h2>
+                <div id="environments-container"></div>
+                <button type="button" id="add-environment-btn" class="btn btn-secondary">Adicionar Ambiente +</button>
+            </div>
+
+            <div class="form-section">
+                <h2>4. Itens Opcionais</h2>
+                <fieldset class="form-group">
+                    <legend>Cubas (preço fixo)</legend>
+                    <div class="checkbox-group" id="cubas-container"></div>
+                </fieldset>
+            </div>
+
+            <div class="form-section">
+                <h2>5. Resumo e Totais</h2>
+                <div id="cost-breakdown">
+                    <p class="breakdown-placeholder">Selecione itens para ver o resumo detalhado.</p>
+                </div>
+
+                <div class="totals-grid">
+                    <div class="form-group">
+                        <label for="frete-input">Valor do Frete</label>
+                        <input type="number" id="frete-input" value="0" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                         <label for="price-adjustment">Ajuste de Preço (%)</label>
+                         <input type="number" id="price-adjustment" value="0" step="0.1" placeholder="Ex: -5 para 5% de desconto">
+                    </div>
+                </div>
+
+                <h2>Valor Total do Orçamento</h2>
+                <div id="total-cost">R$ 0,00</div>
+                
+                <button type="submit" class="btn btn-primary" id="download-pdf-btn">Gerar e Baixar PDF</button>
+                <div id="status-message" class="hidden"></div>
+            </div>
+        </form>
+    </div>
+
+    <div id="environment-template" class="hidden">
+        <div class="environment-block">
+             <div class="environment-header">
+                <input type="text" class="environment-name" placeholder="Nome do Ambiente (ex: Cozinha)" required>
+                <button type="button" class="btn btn-danger remove-environment-btn">Remover</button>
+            </div>
+            <div class="stone-items-container checkbox-group"></div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
